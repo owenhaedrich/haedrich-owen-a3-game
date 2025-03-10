@@ -25,26 +25,32 @@ public class Game
         for (int i = 0; i < spawnedCreatures.Length; i++)
         {
             int pickCreature = Random.Integer(1, 4);
+            Vector2 spawnPosition = GetSpawnPosition();
             if (pickCreature == 1)
             {
-                spawnedCreatures[i] = Creature.aMon(Random.Vector2());
+                spawnedCreatures[i] = Creature.aMon(spawnPosition);
             }
             else if (pickCreature == 2)
             {
-                spawnedCreatures[i] = Creature.bMon(Random.Vector2());
+                spawnedCreatures[i] = Creature.bMon(spawnPosition);
             }
             else if (pickCreature == 3)
             {
-                spawnedCreatures[i] = Creature.cMon(Random.Vector2());
+                spawnedCreatures[i] = Creature.cMon(spawnPosition);
             }
             else if (pickCreature == 4)
             {
-                spawnedCreatures[i] = Creature.dMon(Random.Vector2());
+                spawnedCreatures[i] = Creature.dMon(spawnPosition);
             }
         }
     }
 
     public void Update()
+    {
+        Play();
+    }
+
+    public void Play()
     {
         Window.ClearBackground(Color.OffWhite);
         Vector2 mousePosition = Input.GetMousePosition();
@@ -56,6 +62,16 @@ public class Game
         {
             TakePicture();
         }
+    }
+
+    public Vector2 GetSpawnPosition()
+    {
+        // Ensure one creature is immediately visible then provide a full range of spawn positions
+        if (spawnedCreatures[0] is null)
+        {
+            return Random.Vector2(300, 700, 400, 600);
+        }
+        return Random.Vector2(300, 5000, 400, 600);
     }
 
     public void DrawViewfinder(Vector2 mousePosition, Vector2 viewfinderSize)
