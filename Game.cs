@@ -11,9 +11,10 @@ namespace MohawkGame2D;
 public class Game
 {
     Vector2 viewfinderSize = new Vector2(250, 200); // In-game camera viewfinder size
-    Vector2 playerRotation = new Vector2(0, 0); // Turn horizontally
-    float playerLookAngle = 0; // Vertical look angle
-    float birdPosition = 0; // The bird is a special creature that moves
+    Vector2 viewfinderPosition = new Vector2(0, 0); // In-game camera viewfinder screen position
+    Vector2 playerView = new Vector2(0, 0); // Turn horizontally and change vertical look angle
+    Creature bird = Creature.bird(new Vector2(0, 800)); // The bird is a special creature that moves
+    float birdSpeed = 1.3f;
     Creature[] spawnedCreatures = new Creature[7]; // There are 7 stationary creatures
 
     public void Setup()
@@ -47,13 +48,17 @@ public class Game
     {
         Window.ClearBackground(Color.OffWhite);
         Vector2 mousePosition = Input.GetMousePosition();
-        DrawEnvironment(mousePosition, viewfinderSize, playerRotation);
-        DrawCreatures(mousePosition, viewfinderSize, playerRotation);
-        DrawViewfinderOnMouse(mousePosition, viewfinderSize);
-        playerRotation += RotateViewfinder(mousePosition, viewfinderSize);
+        DrawEnvironment(mousePosition, viewfinderSize, playerView);
+        DrawCreatures(mousePosition, viewfinderSize, playerView);
+        DrawViewfinder(mousePosition, viewfinderSize);
+        playerView += RotateView(mousePosition, viewfinderSize);
+        if (Input.IsMouseButtonPressed(MouseInput.Left))
+        {
+            TakePicture();
+        }
     }
 
-    public void DrawViewfinderOnMouse(Vector2 mousePosition, Vector2 viewfinderSize)
+    public void DrawViewfinder(Vector2 mousePosition, Vector2 viewfinderSize)
     {
         // Draw a viewfinder on the mouse position
         Color viewfinderColor = Color.White;
@@ -63,11 +68,12 @@ public class Game
         Draw.FillColor = new Color(0, 0, 0, 0);
         Draw.LineSize = viewfinderThickness;
 
-        // Draw the viewfinder
-        Draw.Rectangle(mousePosition - viewfinderSize * 0.5f, viewfinderSize);
+        // Draw the viewfinder, held by the mouse on the right side 
+        viewfinderPosition = mousePosition - new Vector2(viewfinderSize.X, 0);
+        Draw.Rectangle(viewfinderPosition, viewfinderSize);
     }
 
-    public Vector2 RotateViewfinder(Vector2 mousePosition, Vector2 viewfinderSize)
+    public Vector2 RotateView(Vector2 mousePosition, Vector2 viewfinderSize)
     {
         // Rotate the viewfinder if the mouse is 100 px from the left or right edge
         float rotationSpeed = 1.5f;
@@ -96,21 +102,47 @@ public class Game
         return rotationChange;
     }
 
-    public void DrawEnvironment(Vector2 mousePosition, Vector2 viewfinderSize, Vector2 playerRotation)
+    public void DrawEnvironment(Vector2 mousePosition, Vector2 viewfinderSize, Vector2 playerView)
     {
     }
 
-    public void DrawCreatures(Vector2 mousePosition, Vector2 viewfinderSize, Vector2 playerRotation)
+    public void DrawCreatures(Vector2 mousePosition, Vector2 viewfinderSize, Vector2 playerView)
     {
         for (int i = 0; i < spawnedCreatures.Length; i++)
         {
             Creature creature = spawnedCreatures[i];
-            Graphics.Draw(creature.viewedTexture, creature.position + playerRotation);
+            Graphics.Draw(creature.viewedTexture, creature.position - creature.size/2 + playerView);
         }
+
+        // Draw the bird
+        bird.position += new Vector2(birdSpeed, 0);
+        Graphics.Draw(bird.viewedTexture, bird.position);
     }
 
     public void TakePicture() 
     {
+        Vector2 viewfinderWorldPosition = viewfinderPosition - playerView;
+
+        Console.WriteLine("Taking picture at:" + viewfinderWorldPosition.ToString());
+        // Check if the in-game camera viewfinder is on the bird
+        if (bird.position.X > viewfinderWorldPosition.X && bird.position.X < viewfinderWorldPosition.X + viewfinderSize.X &&
+            bird.position.Y > viewfinderWorldPosition.Y && bird.position.Y < viewfinderWorldPosition.Y + viewfinderSize.Y)
+        {
+            // Take a picture of the bird
+            Console.WriteLine("Bird!");
+        }
+
+        // Check if the in-game camera viewfinder is on any of the stationary creatures
+        for (int i = 0; i < spawnedCreatures.Length; i++)
+        {
+            Creature creature = spawnedCreatures[i];
+            if (creature.position.X > viewfinderWorldPosition.X && creature.position.X < viewfinderWorldPosition.X + viewfinderSize.X &&
+                creature.position.Y > viewfinderWorldPosition.Y && creature.position.Y < viewfinderWorldPosition.Y + viewfinderSize.Y)
+            {
+                // Take a picture of the creature
+                Console.WriteLine("Creature!");
+            }
+        }
     }
 }
 

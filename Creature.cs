@@ -6,8 +6,10 @@ namespace haedrich_owen_a3_game
     class Creature
     {
         public Vector2 position;
+        public Vector2 size = new Vector2(200, 200);
         public Texture2D viewedTexture = Graphics.LoadTexture("./unknown.png");
         public Texture2D shadowTexture = Graphics.LoadTexture("./unknown.png");
+
         static Texture2D aMonViewed = Graphics.LoadTexture("./aMon.png");
         static Texture2D aMonShadow = Graphics.LoadTexture("./aMonShadow.png");
         static Texture2D bMonViewed = Graphics.LoadTexture("./bMon.png");
