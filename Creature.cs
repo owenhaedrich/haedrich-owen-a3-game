@@ -1,40 +1,77 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Numerics;
 using MohawkGame2D;
 
 namespace haedrich_owen_a3_game
 {
     class Creature
     {
-        public Vector2 position; //position
-        public string viewedTexturePath = "./unknown.png"; // relative path of the texture 
-        public string shadowTexturePath = "./unknown.png"; // relative path of the texture 
+        public Vector2 position;
+        public Texture2D viewedTexture = Graphics.LoadTexture("./unknown.png");
+        public Texture2D shadowTexture = Graphics.LoadTexture("./unknown.png");
+        static Texture2D aMonViewed = Graphics.LoadTexture("./aMon.png");
+        static Texture2D aMonShadow = Graphics.LoadTexture("./aMonShadow.png");
+        static Texture2D bMonViewed = Graphics.LoadTexture("./bMon.png");
+        static Texture2D bMonShadow = Graphics.LoadTexture("./bMonShadow.png");
+        static Texture2D cMonViewed = Graphics.LoadTexture("./cMon.png");
+        static Texture2D cMonShadow = Graphics.LoadTexture("./cMonShadow.png");
+        static Texture2D dMonViewed = Graphics.LoadTexture("./dMon.png");
+        static Texture2D dMonShadow = Graphics.LoadTexture("./dMonShadow.png");
+        static Texture2D birdViewed = Graphics.LoadTexture("./bird.png");
+        static Texture2D birdShadow = Graphics.LoadTexture("./birdShadow.png");
 
-
-        public Creature aMon = new Creature()
+        Creature(Vector2 spawnPosition)
         {
-            position = new Vector2(),
-            viewedTexturePath = "./aMon.png",
-            shadowTexturePath = "./aMonShadow.png"
-        };
+            position = spawnPosition;
+        }
 
-        public Creature bMon = new Creature()
+        public static Creature aMon(Vector2 spawnPosition)
         {
+            return new Creature(spawnPosition)
+            {
+                position = spawnPosition,
+                viewedTexture = aMonViewed,
+                shadowTexture = aMonShadow
+            };
+        }
 
-            position = new Vector2(),
-            viewedTexturePath = "./bMon.png",
-            shadowTexturePath = "./bMonShadow.png"
-        };
-
-        public Creature cMon = new Creature()
+        public static Creature bMon(Vector2 spawnPosition)
         {
-            position = new Vector2(),
-            viewedTexturePath = "./cMon.png",
-            shadowTexturePath = "./cMonShadow.png"
-        };
+            return new Creature(spawnPosition)
+            {
+                position = spawnPosition,
+                viewedTexture = bMonViewed,
+                shadowTexture = bMonShadow
+            };
+        }
+
+        public static Creature cMon(Vector2 spawnPosition)
+        {
+            return new Creature(spawnPosition)
+            {
+                position = spawnPosition,
+                viewedTexture = cMonViewed,
+                shadowTexture = cMonShadow
+            };
+        }
+
+        public static Creature dMon(Vector2 spawnPosition)
+        {
+            return new Creature(spawnPosition)
+            {
+                position = spawnPosition,
+                viewedTexture = dMonViewed,
+                shadowTexture = dMonShadow
+            };
+        }
+
+        public static Creature bird(Vector2 spawnPosition)
+        {
+            return new Creature(spawnPosition)
+            {
+                position = spawnPosition,
+                viewedTexture = birdViewed,
+                shadowTexture = birdShadow
+            };
+        }
     }
 }

@@ -19,6 +19,28 @@ public class Game
     public void Setup()
     {
         Window.SetSize(800, 600);
+
+        // Spawn creatures
+        for (int i = 0; i < spawnedCreatures.Length; i++)
+        {
+            int pickCreature = Random.Integer(1, 4);
+            if (pickCreature == 1)
+            {
+                spawnedCreatures[i] = Creature.aMon(Random.Vector2());
+            }
+            else if (pickCreature == 2)
+            {
+                spawnedCreatures[i] = Creature.bMon(Random.Vector2());
+            }
+            else if (pickCreature == 3)
+            {
+                spawnedCreatures[i] = Creature.cMon(Random.Vector2());
+            }
+            else if (pickCreature == 4)
+            {
+                spawnedCreatures[i] = Creature.dMon(Random.Vector2());
+            }
+        }
     }
 
     public void Update()
@@ -79,6 +101,15 @@ public class Game
     }
 
     public void DrawCreatures(Vector2 mousePosition, Vector2 viewfinderSize, Vector2 playerRotation)
+    {
+        for (int i = 0; i < spawnedCreatures.Length; i++)
+        {
+            Creature creature = spawnedCreatures[i];
+            Graphics.Draw(creature.viewedTexture, creature.position + playerRotation);
+        }
+    }
+
+    public void TakePicture() 
     {
     }
 }
