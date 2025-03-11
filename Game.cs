@@ -26,7 +26,6 @@ public class Game
         {
             int pickCreature = Random.Integer(1, 4);
             Vector2 spawnPosition = GetSpawnPosition();
-            pickCreature = 1;
             if (pickCreature == 1)
             {
                 spawnedCreatures[i] = Creature.aMon(spawnPosition);
@@ -152,7 +151,7 @@ public class Game
 
         // Draw viewed layer over the silhouette inside the viewfinder
 
-        Vector2 viewfinderWorldPosition = viewfinderPosition + playerView - new Vector2(viewfinderSize.X,0); // Viewfinder's world position (The viewfinder rotates with the player)
+        Vector2 viewfinderWorldPosition = viewfinderPosition + playerView - new Vector2(viewfinderSize.X ,0); // Viewfinder's world position (The viewfinder rotates with the player)
 
         for (int i = 0; i < spawnedCreatures.Length; i++)
         {
@@ -160,16 +159,15 @@ public class Game
             Graphics.Scale = creature.scale;
 
             Vector2 creatureSize = Creature.standardSize * creature.scale;
-            Vector2 creatureHalfSize = creatureSize / 2;
             // Check if creature's bounds overlap with viewfinder in coordinates relative to the player view
             if (DoRectanglesOverlap(creature.position + playerView, creatureSize, viewfinderPosition, viewfinderSize))
             {
-                Console.WriteLine("Creature near viewfinder");
-                // Calculate viewed texture position (screen space)
-
+                // Using Vector4 to store the overlap rectangle
+                Vector4 overlap = GetOverlap(creature.position + playerView, creatureSize, viewfinderPosition, viewfinderSize);
+                Vector2 overlapOrigin = new Vector2(overlap.X, overlap.Y);
+                Vector2 overlapSize = new Vector2(overlap.Z, overlap.W);
                 // Draw the portion inside the viewfinder
-               // Graphics.DrawSubset(
-                //);
+                Graphics.DrawSubset(creature.viewedTexture, overlapOrigin, Vector2.Zero + (1/creature.scale) * (overlapOrigin - (creature.position + playerView)), overlapSize / creature.scale);
             }
         }
     }
@@ -201,11 +199,6 @@ public class Game
     }
     public bool DoRectanglesOverlap(Vector2 P1, Vector2 S1, Vector2 P2, Vector2 S2)
     {
-        Draw.FillColor = Color.Blue;
-        Draw.Rectangle(P1, S1);
-        Draw.FillColor = Color.Red;
-        Draw.Rectangle(P2, S2);
-
         // Calculate the left, right, top, and bottom edges of both rectangles
         float left1 = P1.X;
         float right1 = P1.X + S1.X;
@@ -228,4 +221,36 @@ public class Game
         // If none of the above conditions are true, rectangles overlap
         return true;
     }
+
+    public Vector4 GetOverlap(Vector2 P1, Vector2 S1, Vector2 P2, Vector2 S2)
+    {
+        // Calculate the edges of both rectangles
+        float left1 = P1.X;
+        float right1 = P1.X + S1.X;
+        float top1 = P1.Y;
+        float bottom1 = P1.Y + S1.Y;
+
+        float left2 = P2.X;
+        float right2 = P2.X + S2.X;
+        float top2 = P2.Y;
+        float bottom2 = P2.Y + S2.Y;
+
+        // Calculate the overlap boundaries
+        float left = Math.Max(left1, left2);
+        float right = Math.Min(right1, right2);
+        float top = Math.Max(top1, top2);
+        float bottom = Math.Min(bottom1, bottom2); 
+
+        float width = right - left;
+        float height = bottom - top;
+
+        // Check if there is actually an overlap
+        if (width <= 0 || height <= 0)
+        {
+            return new Vector4(0, 0, 0, 0); // No overlap
+        }
+
+        return new Vector4(left, top, width, height);
+    }
+
 }
