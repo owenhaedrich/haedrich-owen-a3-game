@@ -1,9 +1,7 @@
 ﻿// Include the namespaces (code libraries) you need below.
 using System;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 using haedrich_owen_a3_game;
-using Raylib_cs;
 
 // The namespace your code is in.
 namespace MohawkGame2D;
@@ -12,10 +10,12 @@ public class Game
 {
     Vector2 viewfinderSize = new Vector2(250, 200); // In-game camera viewfinder size
     Vector2 viewfinderPosition = new Vector2(0, 0); // In-game camera viewfinder screen position
-    Vector2 playerView = new Vector2(0, 0); // Turn horizontally and change vertical look angle
     Creature bird = Creature.bird(new Vector2(0, 800)); // The bird is a special creature that moves
     float birdSpeed = 1.3f;
-    Creature[] spawnedCreatures = new Creature[7]; // There are 7 stationary creatures
+    Creature[] spawnedCreatures = new Creature[11]; // There are 11 stationary creatures
+
+    const float mapLength = 3000;
+    Vector2 playerView = new Vector2(-mapLength / 2, 0); // Turn horizontally and change vertical look angle. Initialize to center of the map
 
     public void Setup()
     {
@@ -26,6 +26,7 @@ public class Game
         {
             int pickCreature = Random.Integer(1, 4);
             Vector2 spawnPosition = GetSpawnPosition();
+            pickCreature = 1;
             if (pickCreature == 1)
             {
                 spawnedCreatures[i] = Creature.aMon(spawnPosition);
@@ -69,9 +70,22 @@ public class Game
         // Ensure one creature is immediately visible then provide a full range of spawn positions
         if (spawnedCreatures[0] is null)
         {
-            return Random.Vector2(300, 700, 400, 600);
+            return Random.Vector2(mapLength / 2 - 300, mapLength / 2 - 700, 400, 600);
         }
-        return Random.Vector2(300, 5000, 400, 600);
+
+        Vector2 spawnPosition = Random.Vector2(150, mapLength, 200, 900);
+        for (int i = 0; i < spawnedCreatures.Length; i++)
+        {
+            // Check distance to all instantiated creatures
+            if (spawnedCreatures[i] is not null)
+            {
+                if (Vector2.Distance(spawnPosition, spawnedCreatures[i].position) < 200)
+                {
+                    return GetSpawnPosition();
+                }
+            }
+        }
+        return spawnPosition;
     }
 
     public void DrawViewfinder(Vector2 mousePosition, Vector2 viewfinderSize)
@@ -95,11 +109,11 @@ public class Game
         float rotationSpeed = 1.5f;
         Vector2 rotationChange = new Vector2(0, 0);
 
-        if (mousePosition.X < 100)
+        if (mousePosition.X < 100 && Math.Abs(playerView.X) > 0)
         {
             rotationChange.X = rotationSpeed;
         }
-        else if (mousePosition.X > Window.Width - 100)
+        else if (mousePosition.X > Window.Width - 100 && Math.Abs(playerView.X) < mapLength)
         {
             rotationChange.X = -rotationSpeed;
         }
@@ -124,18 +138,43 @@ public class Game
 
     public void DrawCreatures(Vector2 mousePosition, Vector2 viewfinderSize, Vector2 playerView)
     {
+        // Draw silhouette layer
         for (int i = 0; i < spawnedCreatures.Length; i++)
         {
             Creature creature = spawnedCreatures[i];
-            Graphics.Draw(creature.viewedTexture, creature.position - creature.size/2 + playerView);
+            Graphics.Scale = creature.scale;
+            Graphics.Draw(creature.shadowTexture, creature.position + playerView);
         }
 
-        // Draw the bird
+        Graphics.Scale = bird.scale;
         bird.position += new Vector2(birdSpeed, 0);
-        Graphics.Draw(bird.viewedTexture, bird.position);
+        Graphics.Draw(bird.shadowTexture, bird.position);
+
+        // Draw viewed layer over the silhouette inside the viewfinder
+
+        Vector2 viewfinderWorldPosition = viewfinderPosition + playerView - new Vector2(viewfinderSize.X,0); // Viewfinder's world position (The viewfinder rotates with the player)
+
+        for (int i = 0; i < spawnedCreatures.Length; i++)
+        {
+            Creature creature = spawnedCreatures[i];
+            Graphics.Scale = creature.scale;
+
+            Vector2 creatureSize = Creature.standardSize * creature.scale;
+            Vector2 creatureHalfSize = creatureSize / 2;
+            // Check if creature's bounds overlap with viewfinder in coordinates relative to the player view
+            if (DoRectanglesOverlap(creature.position + playerView, creatureSize, viewfinderPosition, viewfinderSize))
+            {
+                Console.WriteLine("Creature near viewfinder");
+                // Calculate viewed texture position (screen space)
+
+                // Draw the portion inside the viewfinder
+               // Graphics.DrawSubset(
+                //);
+            }
+        }
     }
 
-    public void TakePicture() 
+    public void TakePicture()
     {
         Vector2 viewfinderWorldPosition = viewfinderPosition - playerView;
 
@@ -160,5 +199,33 @@ public class Game
             }
         }
     }
-}
+    public bool DoRectanglesOverlap(Vector2 P1, Vector2 S1, Vector2 P2, Vector2 S2)
+    {
+        Draw.FillColor = Color.Blue;
+        Draw.Rectangle(P1, S1);
+        Draw.FillColor = Color.Red;
+        Draw.Rectangle(P2, S2);
 
+        // Calculate the left, right, top, and bottom edges of both rectangles
+        float left1 = P1.X;
+        float right1 = P1.X + S1.X;
+        float top1 = P1.Y;
+        float bottom1 = P1.Y + S1.Y;
+
+        float left2 = P2.X;
+        float right2 = P2.X + S2.X;
+        float top2 = P2.Y;
+        float bottom2 = P2.Y + S2.Y;
+
+        // Check if one rectangle is completely to the left or right of the other
+        if (right1 <= left2 || right2 <= left1)
+            return false;
+
+        // Check if one rectangle is completely above or below the other
+        if (bottom1 <= top2 || bottom2 <= top1)
+            return false;
+
+        // If none of the above conditions are true, rectangles overlap
+        return true;
+    }
+}
