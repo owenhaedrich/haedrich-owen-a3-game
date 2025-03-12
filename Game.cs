@@ -17,11 +17,16 @@ public class Game
         PhotoPreview
     }
 
-    GameState activeState = GameState.Playing;
+    GameState activeState = GameState.Menu;
 
     // Player View Control
-    float rotationSpeed = 3.5f;
-    float liftSpeed = 1.5f;
+    float rotationSpeed = 3.7f;
+    float liftSpeed = 3.5f;
+
+    // Gallery View Control
+    Vector2 photoOffset = new Vector2(0, 300);
+    Vector2 playerOffset = new Vector2(0, 0);
+    Vector2 photoFrameSize = new Vector2(275, 220);
 
     Vector2 viewfinderSize = new Vector2(250, 200); // In-game camera viewfinder size
     Vector2 viewfinderPosition = new Vector2(0, 0); // In-game camera viewfinder screen position
@@ -78,6 +83,11 @@ public class Game
                 break;
         }
 
+        if (Input.IsMouseButtonDown(MouseInput.Left) && activeState == GameState.Menu)
+        {
+            activeState = GameState.Playing;
+        }
+
         if (Input.IsKeyboardKeyPressed(KeyboardInput.Tab))
         {
             switch (activeState)
@@ -91,15 +101,20 @@ public class Game
             }
         }
     }
+    public void Menu()
+    {
+        Window.ClearBackground(Color.OffWhite);
+        Text.Draw("Click to start", 50, 50);
+    }
 
     public void Play()
     {
         Window.ClearBackground(Color.OffWhite);
         Vector2 mousePosition = Input.GetMousePosition();
-        DrawEnvironment(mousePosition, viewfinderSize, playerView);
-        DrawCreatures(mousePosition, viewfinderSize, playerView);
+        DrawEnvironment(mousePosition, playerView);
+        DrawCreatures(mousePosition, playerView);
         DrawViewfinder(mousePosition, viewfinderSize);
-        playerView += RotateView(mousePosition, viewfinderSize);
+        playerView += RotateView(mousePosition);
         if (Input.IsMouseButtonPressed(MouseInput.Left))
         {
             TakePicture();
@@ -109,20 +124,60 @@ public class Game
     public void Gallery()
     {
         Window.ClearBackground(Color.OffWhite);
+
+
+        Vector2 photoPosition = new Vector2(50, 50) + playerOffset;
+
         foreach (Photograph photograph in photographs)
         {
-            photograph.Display();
+            if (photograph != null)
+            {
+                DisplayPhotograph(photograph, photoPosition);
+                photoPosition += photoOffset;
+            }
         }
+
+        playerOffset += RotateView(Input.GetMousePosition());
     }
 
     public void PhotoPreview()
     {
-
+        // Display latest non-null photograph
+        foreach (Photograph photograph in photographs)
+        {
+            if (photograph != null)
+            {
+                DisplayPhotograph(photograph, new Vector2(50, 50), 2.0f);
+                break;
+            }
+        }
     }
 
-    public void Menu()
+    public void DisplayPhotograph(Photograph photograph, Vector2 photoPosition, float scale = 1)
     {
+        foreach (Creature creature in spawnedCreatures)
+        {
+            if (creature == null)
+                continue;
 
+            if (!DoRectanglesOverlap(creature.position, Creature.MaxSize * creature.scale, photograph.viewfinderPosition, photoFrameSize))
+                continue;
+
+            // Calculate the creature's position relative to the photograph's viewfinder
+            Vector2 relativePosition = creature.position - photograph.viewfinderPosition;
+
+            // Determine the position to draw the creature on the screen
+            Vector2 drawPosition = photoPosition + relativePosition * scale;
+
+            // Set the scale for drawing (creature's original scale multiplied by the photograph's display scale)
+            Graphics.Scale = creature.scale * scale;
+
+            // Draw the creature's viewed texture at the calculated position
+            Graphics.Draw(creature.viewedTexture, drawPosition);
+        }
+
+        Draw.LineSize = 25;
+        Draw.Rectangle(photoPosition, photoFrameSize);
     }
 
     public Vector2 GetSpawnPosition()
@@ -163,7 +218,7 @@ public class Game
         Draw.Rectangle(viewfinderPosition, viewfinderSize);
     }
 
-    public Vector2 RotateView(Vector2 mousePosition, Vector2 viewfinderSize)
+    public Vector2 RotateView(Vector2 mousePosition)
     {
         // Rotate the viewfinder if the mouse is 100 px from the left or right edge
 
@@ -191,11 +246,11 @@ public class Game
         return rotationChange;
     }
 
-    public void DrawEnvironment(Vector2 mousePosition, Vector2 viewfinderSize, Vector2 playerView)
+    public void DrawEnvironment(Vector2 mousePosition, Vector2 playerView)
     {
     }
 
-    public void DrawCreatures(Vector2 mousePosition, Vector2 viewfinderSize, Vector2 playerView)
+    public void DrawCreatures(Vector2 mousePosition, Vector2 playerView)
     {
         // Draw silhouette layer
         for (int i = 0; i < spawnedCreatures.Length; i++)
@@ -211,14 +266,14 @@ public class Game
 
         // Draw viewed layer over the silhouette inside the viewfinder
 
-        Vector2 viewfinderWorldPosition = viewfinderPosition + playerView - new Vector2(viewfinderSize.X, 0); // Viewfinder's world position (The viewfinder rotates with the player)
+        Vector2 viewfinderWorldPosition = viewfinderPosition + playerView - new Vector2(viewfinderSize.X, 0); // Viewfinder's world position (The viewfinder is held on the right side)
 
         for (int i = 0; i < spawnedCreatures.Length; i++)
         {
             Creature creature = spawnedCreatures[i];
             Graphics.Scale = creature.scale;
 
-            Vector2 creatureSize = Creature.standardSize * creature.scale;
+            Vector2 creatureSize = Creature.MaxSize * creature.scale;
             // Check if creature's bounds overlap with viewfinder in coordinates relative to the player view
             if (DoRectanglesOverlap(creature.position + playerView, creatureSize, viewfinderPosition, viewfinderSize))
             {
@@ -242,7 +297,15 @@ public class Game
             bird.position.Y > viewfinderWorldPosition.Y && bird.position.Y < viewfinderWorldPosition.Y + viewfinderSize.Y)
         {
             // Take a picture of the bird
-            Console.WriteLine("Bird!");
+            // Add it to the first null slot in the captured creatures array
+            for (int j = 0; j < capturedCreatures.Length; j++)
+            {
+                if (capturedCreatures[j] is null)
+                {
+                    capturedCreatures[j] = bird;
+                    break;
+                }
+            }
         }
 
         // Check if the in-game camera viewfinder is on any of the stationary creatures
