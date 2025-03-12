@@ -1,6 +1,5 @@
 ﻿// Include the namespaces (code libraries) you need below.
 using System;
-using System.ComponentModel.Design;
 using System.Numerics;
 using haedrich_owen_a3_game;
 
@@ -78,6 +77,19 @@ public class Game
                 Menu();
                 break;
         }
+
+        if (Input.IsKeyboardKeyPressed(KeyboardInput.Tab))
+        {
+            switch (activeState)
+            {
+                case GameState.Gallery:
+                    activeState = GameState.Playing;
+                    break;
+                case GameState.Playing:
+                    activeState = GameState.Gallery;
+                    break;
+            }
+        }
     }
 
     public void Play()
@@ -96,7 +108,11 @@ public class Game
 
     public void Gallery()
     {
-
+        Window.ClearBackground(Color.OffWhite);
+        foreach (Photograph photograph in photographs)
+        {
+            photograph.Display();
+        }
     }
 
     public void PhotoPreview()
@@ -219,7 +235,7 @@ public class Game
     public void TakePicture()
     {
         Vector2 viewfinderWorldPosition = viewfinderPosition - playerView;
-
+        Creature[] capturedCreatures = new Creature[5];
         Console.WriteLine("Taking picture at:" + viewfinderWorldPosition.ToString());
         // Check if the in-game camera viewfinder is on the bird
         if (bird.position.X > viewfinderWorldPosition.X && bird.position.X < viewfinderWorldPosition.X + viewfinderSize.X &&
@@ -237,9 +253,30 @@ public class Game
                 creature.position.Y > viewfinderWorldPosition.Y && creature.position.Y < viewfinderWorldPosition.Y + viewfinderSize.Y)
             {
                 // Take a picture of the creature
-                Console.WriteLine("Creature!");
+                // Add it to the first null slot in the captured creatures array
+                for (int j = 0; j < capturedCreatures.Length; j++)
+                {
+                    if (capturedCreatures[j] is null)
+                    {
+                        capturedCreatures[j] = creature;
+                        break;
+                    }
+                }
             }
         }
+
+        // Save the picture to the first null slot in the photographs array
+        for (int i = 0; i < photographs.Length; i++)
+        {
+            if (photographs[i] is null)
+            {
+                photographs[i] = new Photograph(capturedCreatures, viewfinderWorldPosition, "Untitled");
+                return;
+            }
+        }
+
+        // If there are no null slots, the photos are full
+        Console.WriteLine("Photos full");
     }
     public bool DoRectanglesOverlap(Vector2 P1, Vector2 S1, Vector2 P2, Vector2 S2)
     {
