@@ -1,5 +1,6 @@
 ﻿// Include the namespaces (code libraries) you need below.
 using System;
+using System.ComponentModel.Design;
 using System.Numerics;
 using haedrich_owen_a3_game;
 
@@ -8,11 +9,27 @@ namespace MohawkGame2D;
 
 public class Game
 {
+    // State Management
+    enum GameState
+    {
+        Menu,
+        Playing,
+        Gallery,
+        PhotoPreview
+    }
+
+    GameState activeState = GameState.Playing;
+
+    // Player View Control
+    float rotationSpeed = 3.5f;
+    float liftSpeed = 1.5f;
+
     Vector2 viewfinderSize = new Vector2(250, 200); // In-game camera viewfinder size
     Vector2 viewfinderPosition = new Vector2(0, 0); // In-game camera viewfinder screen position
     Creature bird = Creature.bird(new Vector2(0, 800)); // The bird is a special creature that moves
     float birdSpeed = 1.3f;
     Creature[] spawnedCreatures = new Creature[11]; // There are 11 stationary creatures
+    Photograph[] photographs = new Photograph[24]; // There are 24 shots available
 
     const float mapLength = 3000;
     Vector2 playerView = new Vector2(-mapLength / 2, 0); // Turn horizontally and change vertical look angle. Initialize to center of the map
@@ -26,28 +43,41 @@ public class Game
         {
             int pickCreature = Random.Integer(1, 4);
             Vector2 spawnPosition = GetSpawnPosition();
-            if (pickCreature == 1)
+            switch (pickCreature)
             {
-                spawnedCreatures[i] = Creature.aMon(spawnPosition);
-            }
-            else if (pickCreature == 2)
-            {
-                spawnedCreatures[i] = Creature.bMon(spawnPosition);
-            }
-            else if (pickCreature == 3)
-            {
-                spawnedCreatures[i] = Creature.cMon(spawnPosition);
-            }
-            else if (pickCreature == 4)
-            {
-                spawnedCreatures[i] = Creature.dMon(spawnPosition);
+                case 1:
+                    spawnedCreatures[i] = Creature.aMon(spawnPosition);
+                    break;
+                case 2:
+                    spawnedCreatures[i] = Creature.bMon(spawnPosition);
+                    break;
+                case 3:
+                    spawnedCreatures[i] = Creature.cMon(spawnPosition);
+                    break;
+                case 4:
+                    spawnedCreatures[i] = Creature.dMon(spawnPosition);
+                    break;
             }
         }
     }
 
     public void Update()
     {
-        Play();
+        switch (activeState)
+        {
+            case GameState.Playing:
+                Play();
+                break;
+            case GameState.Gallery:
+                Gallery();
+                break;
+            case GameState.PhotoPreview:
+                PhotoPreview();
+                break;
+            case GameState.Menu:
+                Menu();
+                break;
+        }
     }
 
     public void Play()
@@ -62,6 +92,21 @@ public class Game
         {
             TakePicture();
         }
+    }
+
+    public void Gallery()
+    {
+
+    }
+
+    public void PhotoPreview()
+    {
+
+    }
+
+    public void Menu()
+    {
+
     }
 
     public Vector2 GetSpawnPosition()
@@ -105,7 +150,7 @@ public class Game
     public Vector2 RotateView(Vector2 mousePosition, Vector2 viewfinderSize)
     {
         // Rotate the viewfinder if the mouse is 100 px from the left or right edge
-        float rotationSpeed = 1.5f;
+
         Vector2 rotationChange = new Vector2(0, 0);
 
         if (mousePosition.X < 100 && Math.Abs(playerView.X) > 0)
@@ -118,7 +163,6 @@ public class Game
         }
 
         // Lift the viewfinder if the mouse is 100 px from the top or bottom edge
-        float liftSpeed = 0.5f;
         if (mousePosition.Y < 100)
         {
             rotationChange.Y = liftSpeed;
@@ -151,7 +195,7 @@ public class Game
 
         // Draw viewed layer over the silhouette inside the viewfinder
 
-        Vector2 viewfinderWorldPosition = viewfinderPosition + playerView - new Vector2(viewfinderSize.X ,0); // Viewfinder's world position (The viewfinder rotates with the player)
+        Vector2 viewfinderWorldPosition = viewfinderPosition + playerView - new Vector2(viewfinderSize.X, 0); // Viewfinder's world position (The viewfinder rotates with the player)
 
         for (int i = 0; i < spawnedCreatures.Length; i++)
         {
@@ -167,7 +211,7 @@ public class Game
                 Vector2 overlapOrigin = new Vector2(overlap.X, overlap.Y);
                 Vector2 overlapSize = new Vector2(overlap.Z, overlap.W);
                 // Draw the portion inside the viewfinder
-                Graphics.DrawSubset(creature.viewedTexture, overlapOrigin, Vector2.Zero + (1/creature.scale) * (overlapOrigin - (creature.position + playerView)), overlapSize / creature.scale);
+                Graphics.DrawSubset(creature.viewedTexture, overlapOrigin, Vector2.Zero + (1 / creature.scale) * (overlapOrigin - (creature.position + playerView)), overlapSize / creature.scale);
             }
         }
     }
@@ -239,7 +283,7 @@ public class Game
         float left = Math.Max(left1, left2);
         float right = Math.Min(right1, right2);
         float top = Math.Max(top1, top2);
-        float bottom = Math.Min(bottom1, bottom2); 
+        float bottom = Math.Min(bottom1, bottom2);
 
         float width = right - left;
         float height = bottom - top;

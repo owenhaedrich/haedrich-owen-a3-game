@@ -3,7 +3,7 @@ using MohawkGame2D;
 
 namespace haedrich_owen_a3_game
 {
-    class Creature
+    public class Creature
     {
         public Vector2 position;
         public float scale = 1;
