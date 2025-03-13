@@ -265,7 +265,7 @@ public class Game
         Draw.Rectangle(viewfinderPosition, viewfinderSize);
     }
 
-    public Vector2 RotateView(Vector2 mousePosition)
+    public Vector2 RotateView(Vector2 mousePosition, bool player = true)
     {
         // Rotate the viewfinder if the mouse is 100 px from the left or right edge
 
