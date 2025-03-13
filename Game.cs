@@ -174,7 +174,7 @@ public class Game
             }
         }
 
-        playerOffset += RotateView(Input.GetMousePosition());
+        playerOffset += RotateView(Input.GetMousePosition(), false);
     }
 
     public void PhotoPreview()
@@ -271,21 +271,21 @@ public class Game
 
         Vector2 rotationChange = new Vector2(0, 0);
 
-        if (mousePosition.X < 100 && Math.Abs(playerView.X) > 0)
+        if (mousePosition.X < 100 && (Math.Abs(playerView.X) > 0 || !player))
         {
             rotationChange.X = rotationSpeed;
         }
-        else if (mousePosition.X > Window.Width - 100 && Math.Abs(playerView.X) < mapLength)
+        else if (mousePosition.X > Window.Width - 100 && (Math.Abs(playerView.X) < mapLength || !player))
         {
             rotationChange.X = -rotationSpeed;
         }
 
         // Lift the viewfinder if the mouse is 100 px from the top or bottom edge
-        if (mousePosition.Y < 100 && playerView.Y < lookHeight/2)
+        if (mousePosition.Y < 100 && (playerView.Y < lookHeight/ 2 || !player))
         {
             rotationChange.Y = liftSpeed;
         }
-        else if (mousePosition.Y > Window.Height - 100 && playerView.Y > -lookHeight / 2)
+        else if (mousePosition.Y > Window.Height - 100 && (playerView.Y > -lookHeight / 2 || !player))
         {
             rotationChange.Y = -liftSpeed;
         }
