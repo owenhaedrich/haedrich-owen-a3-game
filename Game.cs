@@ -28,14 +28,15 @@ public class Game
     Vector2 playerOffset = new Vector2(0, 0);
     Vector2 photoFrameSize = new Vector2(275, 220);
 
+    // Game Objects
     Vector2 viewfinderSize = new Vector2(250, 200); // In-game camera viewfinder size
     Vector2 viewfinderPosition = new Vector2(0, 0); // In-game camera viewfinder screen position
     Creature bird = Creature.bird(new Vector2(0, 800)); // The bird is a special creature that moves
     float birdSpeed = 1.3f;
     Creature[] spawnedCreatures = new Creature[11]; // There are 11 stationary creatures
     Photograph[] photographs = new Photograph[24]; // There are 24 shots available
-
     const float mapLength = 3000;
+    const float lookHeight = 1000;
     Vector2 playerView = new Vector2(-mapLength / 2, 0); // Turn horizontally and change vertical look angle. Initialize to center of the map
 
     public void Setup()
@@ -45,7 +46,7 @@ public class Game
         // Spawn creatures
         for (int i = 0; i < spawnedCreatures.Length; i++)
         {
-            int pickCreature = Random.Integer(1, 4);
+            int pickCreature = Random.Integer(1, 5);
             Vector2 spawnPosition = GetSpawnPosition();
             switch (pickCreature)
             {
@@ -155,28 +156,40 @@ public class Game
 
     public void DisplayPhotograph(Photograph photograph, Vector2 photoPosition, float scale = 1)
     {
-        foreach (Creature creature in spawnedCreatures)
+        foreach (Creature creature in photograph.capturedCreatures)
         {
             if (creature == null)
-                continue;
-
-            if (!DoRectanglesOverlap(creature.position, Creature.MaxSize * creature.scale, photograph.viewfinderPosition, photoFrameSize))
                 continue;
 
             // Calculate the creature's position relative to the photograph's viewfinder
             Vector2 relativePosition = creature.position - photograph.viewfinderPosition;
 
+            Console.WriteLine("Relative position: " + relativePosition.ToString());
+
             // Determine the position to draw the creature on the screen
-            Vector2 drawPosition = photoPosition + relativePosition * scale;
+            Vector2 drawPosition;
+
+            // Get overlap between creature and viewfinder
+            Vector4 overlap = GetOverlap(creature.position, Creature.MaxSize * creature.scale, photograph.viewfinderPosition, photoFrameSize);
+            Vector2 overlapOrigin = new Vector2(overlap.X, overlap.Y);
+            Vector2 overlapSize = new Vector2(overlap.Z, overlap.W);
+
+            // Calculate offset from viewfinder's origin to the overlap area
+            Vector2 viewfinderToOverlap = overlapOrigin - photograph.viewfinderPosition;
+            drawPosition = photoPosition + viewfinderToOverlap;
 
             // Set the scale for drawing (creature's original scale multiplied by the photograph's display scale)
             Graphics.Scale = creature.scale * scale;
 
-            // Draw the creature's viewed texture at the calculated position
-            Graphics.Draw(creature.viewedTexture, drawPosition);
+            // Calculate the origin of the overlapping texture subset relative to the creature's texture
+            Vector2 textureSubsetOrigin = overlapOrigin - creature.position;
+
+            // Draw only the overlapping portion
+            Graphics.DrawSubset(creature.viewedTexture, drawPosition, textureSubsetOrigin, overlapSize / creature.scale);
         }
 
         Draw.LineSize = 25;
+        Draw.FillColor = Color.Clear;
         Draw.Rectangle(photoPosition, photoFrameSize);
     }
 
@@ -234,11 +247,11 @@ public class Game
         }
 
         // Lift the viewfinder if the mouse is 100 px from the top or bottom edge
-        if (mousePosition.Y < 100)
+        if (mousePosition.Y < 100 && playerView.Y < lookHeight/2)
         {
             rotationChange.Y = liftSpeed;
         }
-        else if (mousePosition.Y > Window.Height - 100)
+        else if (mousePosition.Y > Window.Height - 100 && playerView.Y > -lookHeight / 2)
         {
             rotationChange.Y = -liftSpeed;
         }
@@ -293,8 +306,7 @@ public class Game
         Creature[] capturedCreatures = new Creature[5];
         Console.WriteLine("Taking picture at:" + viewfinderWorldPosition.ToString());
         // Check if the in-game camera viewfinder is on the bird
-        if (bird.position.X > viewfinderWorldPosition.X && bird.position.X < viewfinderWorldPosition.X + viewfinderSize.X &&
-            bird.position.Y > viewfinderWorldPosition.Y && bird.position.Y < viewfinderWorldPosition.Y + viewfinderSize.Y)
+        if (DoRectanglesOverlap(bird.position, Creature.MaxSize * bird.scale, viewfinderWorldPosition, viewfinderSize))
         {
             // Take a picture of the bird
             // Add it to the first null slot in the captured creatures array
@@ -312,8 +324,7 @@ public class Game
         for (int i = 0; i < spawnedCreatures.Length; i++)
         {
             Creature creature = spawnedCreatures[i];
-            if (creature.position.X > viewfinderWorldPosition.X && creature.position.X < viewfinderWorldPosition.X + viewfinderSize.X &&
-                creature.position.Y > viewfinderWorldPosition.Y && creature.position.Y < viewfinderWorldPosition.Y + viewfinderSize.Y)
+            if (DoRectanglesOverlap(creature.position, Creature.MaxSize * creature.scale, viewfinderWorldPosition, viewfinderSize))
             {
                 // Take a picture of the creature
                 // Add it to the first null slot in the captured creatures array

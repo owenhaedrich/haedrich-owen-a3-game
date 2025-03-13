@@ -9,8 +9,9 @@ namespace haedrich_owen_a3_game
         public float scale = 1;
         public Texture2D viewedTexture = Graphics.LoadTexture("../../../unknown.png");
         public Texture2D shadowTexture = Graphics.LoadTexture("../../../unknown.png");
+        
         public static Vector2 MaxSize = new Vector2(200, 200);
-
+        
         static Texture2D aMonViewed = Graphics.LoadTexture("../../../aMon.png");
         static Texture2D aMonShadow = Graphics.LoadTexture("../../../aMonShadow.png");
         static Texture2D bMonViewed = Graphics.LoadTexture("../../../bMon.png");
@@ -25,6 +26,14 @@ namespace haedrich_owen_a3_game
         Creature(Vector2 spawnPosition)
         {
             position = spawnPosition;
+        }
+
+        public Creature(Creature creature)
+        {
+            this.position = creature.position;
+            this.scale = creature.scale;
+            this.viewedTexture = creature.viewedTexture;
+            this.shadowTexture = creature.shadowTexture;
         }
 
         public static Creature aMon(Vector2 spawnPosition)
