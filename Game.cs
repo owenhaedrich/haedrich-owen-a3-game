@@ -27,6 +27,7 @@ public class Game
     Vector2 photoOffset = new Vector2(0, 300);
     Vector2 playerOffset = new Vector2(0, 0);
     Vector2 photoFrameSize = new Vector2(275, 220);
+    Vector2 galleryOffset = new Vector2(300, 100);
 
     // Game Objects
     Vector2 viewfinderSize = new Vector2(250, 200); // In-game camera viewfinder size
@@ -125,15 +126,50 @@ public class Game
     public void Gallery()
     {
         Window.ClearBackground(Color.OffWhite);
-
-
         Vector2 photoPosition = new Vector2(50, 50) + playerOffset;
 
-        foreach (Photograph photograph in photographs)
+        for (int i = 0; i < photographs.Length; i++)
         {
-            if (photograph != null)
+            if (photographs[i] != null)
             {
-                DisplayPhotograph(photograph, photoPosition);
+                // Try to rename the photograph
+                if (Input.IsMouseButtonPressed(MouseInput.Left) && Vector2.Distance(Input.GetMousePosition(), photoPosition + galleryOffset) < 150)
+                {
+                    photographs[i].rename = true;
+                    if (photographs[i].title == "Untitled")
+                    {
+                        photographs[i].title = "";
+                    }
+                }
+                if (photographs[i].rename)
+                {
+                    if (Input.IsKeyboardKeyPressed(KeyboardInput.Enter) || Input.IsKeyboardKeyPressed(KeyboardInput.Tab))
+                    {
+                        photographs[i].rename = false;
+                    }
+                    else if (Input.IsKeyboardKeyPressed(KeyboardInput.Backspace))
+                    {
+                        if (photographs[i].title.Length > 0)
+                        {
+                            string newTitle = photographs[i].title.Remove(photographs[i].title.Length - 1);
+                            photographs[i].title = newTitle;
+                        }
+                    }
+                    else
+                    {
+                        char newChar = Input.GetCharsPressed();
+                        if (newChar != '\0')
+                        {
+                            photographs[i].title += newChar;
+                            Console.WriteLine(photographs[i].title);
+                        }
+                    }
+                }
+                // Draw the photo and display the title
+                DisplayPhotograph(photographs[i], photoPosition);
+                Text.Draw("\"" + photographs[i].title + "\"", photoPosition + galleryOffset);
+
+                // Move to the next photo position
                 photoPosition += photoOffset;
             }
         }
@@ -163,8 +199,6 @@ public class Game
 
             // Calculate the creature's position relative to the photograph's viewfinder
             Vector2 relativePosition = creature.position - photograph.viewfinderPosition;
-
-            Console.WriteLine("Relative position: " + relativePosition.ToString());
 
             // Determine the position to draw the creature on the screen
             Vector2 drawPosition;
@@ -344,7 +378,7 @@ public class Game
         {
             if (photographs[i] is null)
             {
-                photographs[i] = new Photograph(capturedCreatures, viewfinderWorldPosition, "Untitled");
+                photographs[i] = new Photograph(capturedCreatures, viewfinderWorldPosition);
                 return;
             }
         }

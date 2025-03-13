@@ -6,9 +6,10 @@ namespace haedrich_owen_a3_game
     {
         public Creature[] capturedCreatures = new Creature[5];
         public Vector2 viewfinderPosition = new Vector2(0, 0);
-        string title = "Untitled";
-        
-        public Photograph(Creature[] capturedCreatures, Vector2 viewfinderPosition, string title)
+        public string title = "Untitled";
+        public bool rename = false;
+
+        public Photograph(Creature[] capturedCreatures, Vector2 viewfinderPosition)
         {
 
             for (int i = 0; i < capturedCreatures.Length; i++)
@@ -19,7 +20,6 @@ namespace haedrich_owen_a3_game
                 }
             }
             this.viewfinderPosition = viewfinderPosition;
-            this.title = title;
         }
     }
 }
