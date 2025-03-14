@@ -39,7 +39,9 @@ public class Game
     Photograph[] photographs = new Photograph[24]; // There are 24 shots available
     const float mapLength = 3000;
     const float lookHeight = 1000;
-    Vector2 playerView = new Vector2(-mapLength / 2, 0); // Turn horizontally and change vertical look angle. Initialize to center of the map
+    Vector2 playerView = new Vector2(-mapLength / 2, lookHeight / 2); // Turn horizontally and change vertical look angle. Initialize to center of the map
+    Texture2D background = Graphics.LoadTexture("../../../forest.png");
+    Vector2 backGroundOffset = new Vector2(-1500, -500);
 
     public void Setup()
     {
@@ -198,6 +200,10 @@ public class Game
 
     public void DisplayPhotograph(Photograph photograph, Vector2 photoPosition, float scale = 1)
     {
+        Graphics.Scale = 1;
+        Vector2 backgroundSubsetOrigin = photograph.viewfinderPosition - backGroundOffset;
+        Graphics.DrawSubset(background, photoPosition, backgroundSubsetOrigin, photoFrameSize * scale);
+
         foreach (Creature creature in photograph.capturedCreatures)
         {
             if (creature == null)
@@ -277,11 +283,11 @@ public class Game
 
         Vector2 rotationChange = new Vector2(0, 0);
 
-        if (mousePosition.X < 100 && (Math.Abs(playerView.X) > 0 || !player))
+        if (mousePosition.X < 100 && (-playerView.X > 0 || !player))
         {
             rotationChange.X = rotationSpeed;
         }
-        else if (mousePosition.X > Window.Width - 100 && (Math.Abs(playerView.X) < mapLength || !player))
+        else if (mousePosition.X > Window.Width - 100 && (-playerView.X < mapLength || !player))
         {
             rotationChange.X = -rotationSpeed;
         }
@@ -301,6 +307,8 @@ public class Game
 
     public void DrawEnvironment(Vector2 mousePosition, Vector2 playerView)
     {
+        Graphics.Scale = 1;
+        Graphics.Draw(background, playerView + backGroundOffset);
     }
 
     public void DrawCreatures(Vector2 mousePosition, Vector2 playerView)
