@@ -27,6 +27,7 @@ public class Game
     Vector2 photoFrameSize = new Vector2(275, 220);
     Vector2 galleryOffset = new Vector2(50, 100);
     Vector2 galleryTextOffset = new Vector2(390, 0);
+    bool renaming = false;
 
     // Game Objects
     Rectangle viewfinder = new Rectangle(new Vector2(0, 0), new Vector2(250, 200));
@@ -129,15 +130,18 @@ public class Game
     {
         Window.ClearBackground(Color.OffWhite);
         Vector2 photoPosition = galleryOffset + playerOffset;
-
+        
         for (int i = 0; i < photographs.Length; i++)
         {
+            Text.Color = Color.Black;
             if (photographs[i] != null)
             {
+                bool clickedNearTitle = Vector2.Distance(Input.GetMousePosition(), photoPosition + galleryOffset + galleryTextOffset) < 150;
                 // Try to rename the photograph
-                if (Input.IsMouseButtonPressed(MouseInput.Left) && Vector2.Distance(Input.GetMousePosition(), photoPosition + galleryOffset + galleryTextOffset) < 150)
+                if (Input.IsMouseButtonPressed(MouseInput.Left) && clickedNearTitle)
                 {
                     photographs[i].rename = true;
+                    renaming = true;
                     if (photographs[i].title == "Untitled")
                     {
                         photographs[i].title = "";
@@ -145,9 +149,12 @@ public class Game
                 }
                 if (photographs[i].rename)
                 {
-                    if (Input.IsKeyboardKeyPressed(KeyboardInput.Enter) || Input.IsKeyboardKeyPressed(KeyboardInput.Tab))
+                    Text.Color = Color.Red;
+                    if (Input.IsKeyboardKeyPressed(KeyboardInput.Enter) || Input.IsKeyboardKeyPressed(KeyboardInput.Tab) || (Input.IsMouseButtonDown(MouseInput.Left) && !clickedNearTitle))
                     {
                         photographs[i].rename = false;
+                        renaming = false;
+                        Text.Color = Color.Black;
                         if (photographs[i].title == "")
                         {
                             photographs[i].title = "Untitled";
