@@ -27,7 +27,8 @@ public class Game
     Vector2 photoOffset = new Vector2(0, 300);
     Vector2 playerOffset = new Vector2(0, 0);
     Vector2 photoFrameSize = new Vector2(275, 220);
-    Vector2 galleryOffset = new Vector2(300, 100);
+    Vector2 galleryOffset = new Vector2(50, 100);
+    Vector2 galleryTextOffset = new Vector2(390, 0);
 
     // Game Objects
     Vector2 viewfinderSize = new Vector2(250, 200); // In-game camera viewfinder size
@@ -120,20 +121,21 @@ public class Game
         if (Input.IsMouseButtonPressed(MouseInput.Left))
         {
             TakePicture();
+            playerOffset = new Vector2(0, photographs.Length);
         }
     }
 
     public void Gallery()
     {
         Window.ClearBackground(Color.OffWhite);
-        Vector2 photoPosition = new Vector2(50, 50) + playerOffset;
+        Vector2 photoPosition = galleryOffset + playerOffset;
 
         for (int i = 0; i < photographs.Length; i++)
         {
             if (photographs[i] != null)
             {
                 // Try to rename the photograph
-                if (Input.IsMouseButtonPressed(MouseInput.Left) && Vector2.Distance(Input.GetMousePosition(), photoPosition + galleryOffset) < 150)
+                if (Input.IsMouseButtonPressed(MouseInput.Left) && Vector2.Distance(Input.GetMousePosition(), photoPosition + galleryOffset + galleryTextOffset) < 150)
                 {
                     photographs[i].rename = true;
                     if (photographs[i].title == "Untitled")
@@ -146,6 +148,10 @@ public class Game
                     if (Input.IsKeyboardKeyPressed(KeyboardInput.Enter) || Input.IsKeyboardKeyPressed(KeyboardInput.Tab))
                     {
                         photographs[i].rename = false;
+                        if (photographs[i].title == "")
+                        {
+                            photographs[i].title = "Untitled";
+                        }
                     }
                     else if (Input.IsKeyboardKeyPressed(KeyboardInput.Backspace))
                     {
@@ -158,7 +164,7 @@ public class Game
                     else
                     {
                         char newChar = Input.GetCharsPressed();
-                        if (newChar != '\0')
+                        if (newChar != 0)
                         {
                             photographs[i].title += newChar;
                             Console.WriteLine(photographs[i].title);
@@ -166,8 +172,8 @@ public class Game
                     }
                 }
                 // Draw the photo and display the title
-                DisplayPhotograph(photographs[i], photoPosition);
-                Text.Draw("\"" + photographs[i].title + "\"", photoPosition + galleryOffset);
+                DisplayPhotograph(photographs[i], photoPosition, 1.3f);
+                Text.Draw("\"" + photographs[i].title + "\"", photoPosition + galleryOffset + galleryTextOffset);
 
                 // Move to the next photo position
                 photoPosition += photoOffset;
@@ -210,13 +216,13 @@ public class Game
 
             // Calculate offset from viewfinder's origin to the overlap area
             Vector2 viewfinderToOverlap = overlapOrigin - photograph.viewfinderPosition;
-            drawPosition = photoPosition + viewfinderToOverlap;
+            drawPosition = photoPosition + viewfinderToOverlap * scale;
 
             // Set the scale for drawing (creature's original scale multiplied by the photograph's display scale)
             Graphics.Scale = creature.scale * scale;
 
             // Calculate the origin of the overlapping texture subset relative to the creature's texture
-            Vector2 textureSubsetOrigin = overlapOrigin - creature.position;
+            Vector2 textureSubsetOrigin = (overlapOrigin - creature.position) / creature.scale;
 
             // Draw only the overlapping portion
             Graphics.DrawSubset(creature.viewedTexture, drawPosition, textureSubsetOrigin, overlapSize / creature.scale);
@@ -224,7 +230,7 @@ public class Game
 
         Draw.LineSize = 25;
         Draw.FillColor = Color.Clear;
-        Draw.Rectangle(photoPosition, photoFrameSize);
+        Draw.Rectangle(photoPosition, photoFrameSize * scale);
     }
 
     public Vector2 GetSpawnPosition()
