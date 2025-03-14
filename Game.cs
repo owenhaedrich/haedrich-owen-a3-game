@@ -100,6 +100,17 @@ public class Game
                     break;
                 case GameState.Playing:
                     activeState = GameState.Gallery;
+                    // Focus on most recent photo
+                    int photoCount = 0;
+                    foreach (Photograph photograph in photographs)
+                    {
+                        if (photograph != null)
+                        {
+                            photoCount++;
+                        }
+                    }
+                    playerOffset = (1 - photoCount) * photoOffset;
+                    playerOffset.X = 0;
                     break;
             }
         }
@@ -122,7 +133,6 @@ public class Game
         if (Input.IsMouseButtonPressed(MouseInput.Left))
         {
             TakePicture();
-            playerOffset = new Vector2(0, photographs.Length);
         }
     }
 
