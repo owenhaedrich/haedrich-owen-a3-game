@@ -244,9 +244,14 @@ public class Game
 
     public Vector2 GetSpawnPosition()
     {
+        // The first creature will always be visible
         if (spawnedCreatures[0] is null)
         {
-            return Random.Vector2(mapLength / 2 - 300, mapLength / 2 - 700, 400, 600);
+            float minX = -1500f;  // Initial playerView.X
+            float maxX = -700f;   // playerView.X + Window.Width (800)
+            float minY = 500f;    // Initial playerView.Y
+            float maxY = 1100f;   // playerView.Y + Window.Height (600)
+            return Random.Vector2(minX, maxX, minY, maxY);
         }
 
         Vector2 spawnPosition = Random.Vector2(150, mapLength, 200, 900);
@@ -270,24 +275,24 @@ public class Game
         Draw.Rectangle(viewfinder.position, viewfinder.size);
     }
 
-    public Vector2 RotateView(Vector2 mousePosition, bool player = true)
+    public Vector2 RotateView(Vector2 mousePosition, bool isPlayer = true)
     {
         Vector2 rotationChange = Vector2.Zero;
 
-        if (mousePosition.X < 100 && (-playerView.X > 0 || !player))
+        if (mousePosition.X < 100 && (-playerView.X > 0 || !isPlayer))
         {
             rotationChange.X = rotationSpeed;
         }
-        else if (mousePosition.X > Window.Width - 100 && (-playerView.X < mapLength || !player))
+        else if (mousePosition.X > Window.Width - 100 && (-playerView.X < mapLength || !isPlayer))
         {
             rotationChange.X = -rotationSpeed;
         }
 
-        if (mousePosition.Y < 100 && (playerView.Y < lookHeight / 2 || !player))
+        if (mousePosition.Y < 100 && (playerView.Y < lookHeight / 2 || !isPlayer))
         {
             rotationChange.Y = liftSpeed;
         }
-        else if (mousePosition.Y > Window.Height - 100 && (playerView.Y > -lookHeight / 2 || !player))
+        else if (mousePosition.Y > Window.Height - 100 && (playerView.Y > -lookHeight / 2 || !isPlayer))
         {
             rotationChange.Y = -liftSpeed;
         }
@@ -373,6 +378,10 @@ public class Game
                 }
             }
         }
+
+        // Draw flash
+        Draw.FillColor = Color.White;
+        Draw.Rectangle(viewfinder.position, viewfinder.size);
 
         // Save the picture to the first null slot in the photographs array
         for (int i = 0; i < photographs.Length; i++)
