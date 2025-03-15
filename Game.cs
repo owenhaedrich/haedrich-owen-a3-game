@@ -184,7 +184,6 @@ public class Game
                         if (newChar != 0)
                         {
                             photographs[i].title += newChar;
-                            Console.WriteLine(photographs[i].title);
                         }
                     }
                 }
@@ -345,7 +344,6 @@ public class Game
     public void TakePicture()
     {
         Vector2 viewfinderWorldPosition = viewfinder.position - playerView;
-        Console.WriteLine(viewfinderWorldPosition);
         Creature[] capturedCreatures = new Creature[5];
         // Check if the in-game camera viewfinder is on the bird
         if (DoRectanglesOverlap(
@@ -393,7 +391,6 @@ public class Game
                 return;
             }
         }
-        Console.WriteLine("Photos full");
     }
 
     public bool DoRectanglesOverlap(Rectangle rect1, Rectangle rect2)
