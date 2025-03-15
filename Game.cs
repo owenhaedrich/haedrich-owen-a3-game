@@ -31,10 +31,10 @@ public class Game
 
     // Game Objects
     Rectangle viewfinder = new Rectangle(new Vector2(0, 0), new Vector2(250, 200));
-    Creature bird = Creature.bird(new Vector2(0, 800));
+    Creature bird = Creature.bird(new Vector2(0, -400));
     float birdSpeed = 1.3f;
     Creature[] spawnedCreatures = new Creature[11];
-    Photograph[] photographs = new Photograph[24];
+    Photograph[] photographs = new Photograph[999];
     const float mapLength = 3000;
     const float lookHeight = 1000;
     Vector2 playerView = new Vector2(-mapLength / 2, lookHeight / 2);
@@ -315,11 +315,17 @@ public class Game
         }
 
         Graphics.Scale = bird.scale;
-        bird.position += new Vector2(birdSpeed, 0);
-        Graphics.Draw(bird.shadowTexture, bird.position);
+        if (bird.position.X < 0)
+        {
+            bird.position.X = mapLength;
+        }
+
+        bird.position += new Vector2(-birdSpeed, 0);
+        Graphics.Draw(bird.shadowTexture, bird.position + playerView);
 
         Vector2 viewfinderWorldPosition = viewfinder.position + playerView - new Vector2(viewfinder.size.X, 0);
 
+        // Check and draw spawned creatures in viewfinder
         for (int i = 0; i < spawnedCreatures.Length; i++)
         {
             Creature creature = spawnedCreatures[i];
@@ -339,8 +345,21 @@ public class Game
                     overlap.size / creature.scale);
             }
         }
-    }
 
+        // Check and draw bird in viewfinder
+        Graphics.Scale = bird.scale;
+        Vector2 birdSize = Creature.MaxSize * bird.scale;
+        Rectangle birdScreenRect = new Rectangle(bird.position + playerView, birdSize);
+        if (DoRectanglesOverlap(birdScreenRect, new Rectangle(viewfinder.position, viewfinder.size)))
+        {
+            Rectangle overlap = GetOverlap(
+                birdScreenRect,
+                new Rectangle(viewfinder.position, viewfinder.size)
+            );
+            Vector2 subsetOrigin = (overlap.position - (bird.position + playerView)) / bird.scale;
+            Graphics.DrawSubset(bird.viewedTexture, overlap.position, subsetOrigin, overlap.size / bird.scale);
+        }
+    }
     public void TakePicture()
     {
         Vector2 viewfinderWorldPosition = viewfinder.position - playerView;
