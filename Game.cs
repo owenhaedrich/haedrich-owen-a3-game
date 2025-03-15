@@ -214,9 +214,9 @@ public class Game
 
     public void DisplayPhotograph(Photograph photograph, Vector2 photoPosition, float scale = 1)
     {
-        Graphics.Scale = 1;
+        Graphics.Scale = 1 * scale; ;
         Vector2 backgroundSubsetOrigin = photograph.viewfinderPosition - backGroundOffset;
-        Graphics.DrawSubset(background, photoPosition, backgroundSubsetOrigin, photoFrameSize * scale);
+        Graphics.DrawSubset(background, photoPosition, backgroundSubsetOrigin, photoFrameSize);
 
         foreach (Creature creature in photograph.capturedCreatures)
         {
