@@ -37,7 +37,7 @@ public class Game
     Photograph[] photographs = new Photograph[999];
     const float mapLength = 3000;
     const float lookHeight = 1000;
-    Vector2 playerView = new Vector2(-mapLength / 2, lookHeight / 2);
+    Vector2 playerView = new Vector2(-mapLength / 2, -lookHeight / 2);
     Texture2D background = Graphics.LoadTexture("../../../forest.png");
     Vector2 backGroundOffset = new Vector2(-1500, -500);
 
