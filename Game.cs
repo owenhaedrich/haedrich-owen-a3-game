@@ -247,14 +247,14 @@ public class Game
         // The first creature will always be visible
         if (spawnedCreatures[0] is null)
         {
-            float minX = -1500f;  // Initial playerView.X
-            float maxX = -700f;   // playerView.X + Window.Width (800)
-            float minY = 500f;    // Initial playerView.Y
-            float maxY = 1100f;   // playerView.Y + Window.Height (600)
+            float minX = 1300f;
+            float maxX = 1000f;
+            float minY = -300f;
+            float maxY = -200f;
             return Random.Vector2(minX, maxX, minY, maxY);
         }
 
-        Vector2 spawnPosition = Random.Vector2(150, mapLength, 200, 900);
+        Vector2 spawnPosition = Random.Vector2(150, mapLength, -300, 900);
         for (int i = 0; i < spawnedCreatures.Length; i++)
         {
             if (spawnedCreatures[i] is not null &&
@@ -345,6 +345,7 @@ public class Game
     public void TakePicture()
     {
         Vector2 viewfinderWorldPosition = viewfinder.position - playerView;
+        Console.WriteLine(viewfinderWorldPosition);
         Creature[] capturedCreatures = new Creature[5];
         // Check if the in-game camera viewfinder is on the bird
         if (DoRectanglesOverlap(
