@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Numerics;
 using haedrich_owen_a3_game;
 
@@ -12,7 +13,7 @@ public class Game
         Menu,
         Playing,
         Gallery,
-        PhotoPreview
+        End
     }
 
     GameState activeState = GameState.Menu;
@@ -20,6 +21,7 @@ public class Game
     // Player View Control
     float rotationSpeed = 3.7f;
     float liftSpeed = 3.5f;
+    int photosRemaining = 24;
 
     // Gallery View Control
     Vector2 photoOffset = new Vector2(0, 300);
@@ -34,7 +36,7 @@ public class Game
     Creature bird = Creature.bird(new Vector2(0, -400));
     float birdSpeed = 1.3f;
     Creature[] spawnedCreatures = new Creature[11];
-    Photograph[] photographs = new Photograph[999];
+    Photograph[] photographs = new Photograph[24];
     const float mapLength = 3000;
     const float lookHeight = 1000;
     Vector2 playerView = new Vector2(-mapLength / 2, 0);
@@ -78,11 +80,12 @@ public class Game
             case GameState.Gallery:
                 Gallery();
                 break;
-            case GameState.PhotoPreview:
-                PhotoPreview();
-                break;
             case GameState.Menu:
                 Menu();
+                break;
+            case GameState.End:
+                Gallery();
+                End();
                 break;
         }
 
@@ -126,9 +129,21 @@ public class Game
     {
         Window.ClearBackground(Color.OffWhite);
         Vector2 mousePosition = Input.GetMousePosition();
-        DrawEnvironment(mousePosition, playerView);
-        DrawCreatures(mousePosition, playerView);
-        DrawViewfinder(mousePosition, viewfinder.size);
+        photosRemaining = 0;
+        foreach (Photograph photograph in photographs)
+        { 
+            if (photograph is null) { photosRemaining++; } 
+        }
+        if (photosRemaining > 0)
+        {
+            DrawEnvironment(mousePosition, playerView);
+            DrawCreatures(mousePosition, playerView);
+            DrawViewfinder(mousePosition, viewfinder.size);
+        }
+        else
+        {
+            activeState = GameState.End;
+        }
         playerView += RotateView(mousePosition);
         if (Input.IsMouseButtonPressed(MouseInput.Left))
         {
@@ -199,16 +214,45 @@ public class Game
         playerOffset += RotateView(Input.GetMousePosition(), false);
     }
 
-    public void PhotoPreview()
+    public void End()
     {
-        // Display latest non-null photograph
+        Creature[] creaturesCaught = new Creature[Creature.AllCreatures.Length];
         foreach (Photograph photograph in photographs)
         {
-            if (photograph != null)
+            foreach (Creature creature in photograph.capturedCreatures)
             {
-                DisplayPhotograph(photograph, new Vector2(50, 50), 2.0f);
-                break;
+                if (creature is null)
+                    continue;
+                else
+                {
+                    creaturesCaught[creature.ID] = creature;
+                }
             }
+        }
+
+        int creaturesMissed = 0;
+        foreach (Creature creature in creaturesCaught)
+        {
+            if (creature is null)
+            {
+                creaturesMissed++;
+            }
+        }
+
+        if (creaturesMissed <= 0)
+        {
+            // Do not ClearBackground here, the game will show the winning gallery
+            // Draw a rectanglar frame for the win text
+            Draw.FillColor = Color.Yellow;
+            Draw.LineSize = 0;
+            Draw.Rectangle(Window.Width/2 - 75, 75, 200, 70);
+;           Text.Draw("You Win!", Window.Width/2 - 50, 100);
+        }
+        else
+        {
+            Window.ClearBackground(Color.OffWhite);
+            Text.Draw($"You Missed {creaturesMissed} Creatures!", Window.Width / 2 - 150, Window.Height / 2 - 50);
+            Text.Draw("You Lose!", Window.Width / 2 - 150, Window.Height / 2 - 150);
         }
     }
 

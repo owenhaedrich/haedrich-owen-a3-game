@@ -5,13 +5,22 @@ namespace haedrich_owen_a3_game
 {
     public class Creature
     {
+        public int ID;
         public Vector2 position;
         public float scale = 1;
         public Texture2D viewedTexture = Graphics.LoadTexture("../../../unknown.png");
         public Texture2D shadowTexture = Graphics.LoadTexture("../../../unknown.png");
-        
+
         public static Vector2 MaxSize = new Vector2(200, 200);
-        
+        public static Creature[] AllCreatures = new Creature[]
+        {
+            aMon(Vector2.Zero),
+            bMon(Vector2.Zero),
+            cMon(Vector2.Zero),
+            dMon(Vector2.Zero),
+            bird(Vector2.Zero)
+        };
+
         static Texture2D aMonViewed = Graphics.LoadTexture("../../../aMon.png");
         static Texture2D aMonShadow = Graphics.LoadTexture("../../../aMonShadow.png");
         static Texture2D bMonViewed = Graphics.LoadTexture("../../../bMon.png");
@@ -30,6 +39,7 @@ namespace haedrich_owen_a3_game
 
         public Creature(Creature creature)
         {
+            this.ID = creature.ID;
             this.position = creature.position;
             this.scale = creature.scale;
             this.viewedTexture = creature.viewedTexture;
@@ -40,6 +50,7 @@ namespace haedrich_owen_a3_game
         {
             return new Creature(spawnPosition)
             {
+                ID = 0,
                 position = spawnPosition,
                 viewedTexture = aMonViewed,
                 shadowTexture = aMonShadow,
@@ -51,6 +62,7 @@ namespace haedrich_owen_a3_game
         {
             return new Creature(spawnPosition)
             {
+                ID = 1,
                 position = spawnPosition,
                 viewedTexture = bMonViewed,
                 shadowTexture = bMonShadow
@@ -61,6 +73,7 @@ namespace haedrich_owen_a3_game
         {
             return new Creature(spawnPosition)
             {
+                ID = 2,
                 position = spawnPosition,
                 viewedTexture = cMonViewed,
                 shadowTexture = cMonShadow
@@ -71,6 +84,7 @@ namespace haedrich_owen_a3_game
         {
             return new Creature(spawnPosition)
             {
+                ID = 3,
                 position = spawnPosition,
                 viewedTexture = dMonViewed,
                 shadowTexture = dMonShadow
@@ -81,6 +95,7 @@ namespace haedrich_owen_a3_game
         {
             return new Creature(spawnPosition)
             {
+                ID = 4,
                 position = spawnPosition,
                 viewedTexture = birdViewed,
                 shadowTexture = birdShadow
