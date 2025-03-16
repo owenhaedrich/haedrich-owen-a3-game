@@ -36,7 +36,7 @@ public class Game
     Creature bird = Creature.bird(new Vector2(0, -400));
     float birdSpeed = 1.3f;
     Creature[] spawnedCreatures = new Creature[11];
-    Photograph[] photographs = new Photograph[15];
+    Photograph[] photographs = new Photograph[12];
     const float mapLength = 3000;
     const float lookHeight = 1000;
     Vector2 playerView = new Vector2(-mapLength / 2, 0);
