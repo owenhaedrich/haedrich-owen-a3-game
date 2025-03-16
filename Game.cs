@@ -36,7 +36,7 @@ public class Game
     Creature bird = Creature.bird(new Vector2(0, -400));
     float birdSpeed = 1.3f;
     Creature[] spawnedCreatures = new Creature[11];
-    Photograph[] photographs = new Photograph[24];
+    Photograph[] photographs = new Photograph[15];
     const float mapLength = 3000;
     const float lookHeight = 1000;
     Vector2 playerView = new Vector2(-mapLength / 2, 0);
@@ -129,7 +129,7 @@ public class Game
         Text.Size = 50;
         Text.Draw("Wildlife Photographer", Window.Width/ 2 - 300, Window.Height / 2 - 100);
         Text.Size = 30;
-        Text.Draw("Try to Capture Them All!", Window.Width / 2 - 200, Window.Height / 2);
+        Text.Draw("Try to Capture All 5 Unique Creatures!", Window.Width / 2 - 300, Window.Height / 2);
         Text.Draw("Click to start", Window.Width / 2 - 150, Window.Height / 2 + 100);
     }
 
