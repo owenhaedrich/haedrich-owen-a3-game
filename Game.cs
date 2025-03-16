@@ -21,7 +21,7 @@ public class Game
     // Player View Control
     float rotationSpeed = 3.7f;
     float liftSpeed = 3.5f;
-    int photosRemaining = 24;
+    int photosRemaining = 12;
 
     // Gallery View Control
     Vector2 photoOffset = new Vector2(0, 300);
@@ -45,8 +45,8 @@ public class Game
 
     public void Setup()
     {
-        Window.SetSize(800, 600); 
-
+        Window.SetSize(800, 600);
+        photosRemaining = photographs.Length;
         // Spawn creatures
         for (int i = 0; i < spawnedCreatures.Length; i++)
         {
@@ -274,7 +274,7 @@ public class Game
             activeState = GameState.Menu;
             Setup();
             playerView = new Vector2(-mapLength / 2, 0);
-            photographs = new Photograph[24];
+            photographs = new Photograph[12];
         }
     }
 
