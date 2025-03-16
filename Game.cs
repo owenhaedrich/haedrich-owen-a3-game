@@ -28,7 +28,7 @@ public class Game
     Vector2 galleryOffset = new Vector2(50, 100);
     Vector2 galleryTextOffset = new Vector2(390, 0);
     bool renaming = false;
-
+    
     // Game Objects
     Rectangle viewfinder = new Rectangle(new Vector2(0, 0), new Vector2(250, 200));
     Creature bird = Creature.bird(new Vector2(0, -400));
@@ -37,7 +37,7 @@ public class Game
     Photograph[] photographs = new Photograph[999];
     const float mapLength = 3000;
     const float lookHeight = 1000;
-    Vector2 playerView = new Vector2(-mapLength / 2, -lookHeight / 2);
+    Vector2 playerView = new Vector2(-mapLength / 2, 0);
     Texture2D background = Graphics.LoadTexture("../../../forest.png");
     Vector2 backGroundOffset = new Vector2(-1500, -500);
 
@@ -246,10 +246,10 @@ public class Game
         // The first creature will always be visible
         if (spawnedCreatures[0] is null)
         {
-            float minX = 1300f;
-            float maxX = 1000f;
-            float minY = -300f;
-            float maxY = -200f;
+            float minX = mapLength / 2;
+            float maxX = mapLength / 2 + 400;
+            float minY = 0f;
+            float maxY = 400f;
             return Random.Vector2(minX, maxX, minY, maxY);
         }
 
