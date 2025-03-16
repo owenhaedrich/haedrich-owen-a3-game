@@ -45,12 +45,16 @@ public class Game
 
     public void Setup()
     {
-        Window.SetSize(800, 600);
+        Window.SetSize(800, 600); 
 
         // Spawn creatures
         for (int i = 0; i < spawnedCreatures.Length; i++)
         {
+            // Randomly pick a creature to spawn, except for the first 5 which are fixed to one of each species
             int pickCreature = Random.Integer(1, 5);
+            if (i + 1 < 5) {
+                pickCreature = i + 1;
+            }
             Vector2 spawnPosition = GetSpawnPosition();
             switch (pickCreature)
             {
@@ -122,7 +126,11 @@ public class Game
     public void Menu()
     {
         Window.ClearBackground(Color.OffWhite);
-        Text.Draw("Click to start", 50, 50);
+        Text.Size = 50;
+        Text.Draw("Wildlife Photographer", Window.Width/ 2 - 300, Window.Height / 2 - 100);
+        Text.Size = 30;
+        Text.Draw("Try to Capture Them All!", Window.Width / 2 - 200, Window.Height / 2);
+        Text.Draw("Click to start", Window.Width / 2 - 150, Window.Height / 2 + 100);
     }
 
     public void Play()
@@ -134,6 +142,7 @@ public class Game
         { 
             if (photograph is null) { photosRemaining++; } 
         }
+
         if (photosRemaining > 0)
         {
             DrawEnvironment(mousePosition, playerView);
@@ -159,6 +168,7 @@ public class Game
         for (int i = 0; i < photographs.Length; i++)
         {
             Text.Color = Color.Black;
+            Text.Size = 30;
             if (photographs[i] != null)
             {
                 bool clickedNearTitle = Vector2.Distance(Input.GetMousePosition(), photoPosition + galleryOffset + galleryTextOffset) < 150;
@@ -254,6 +264,18 @@ public class Game
             Text.Draw($"You Missed {creaturesMissed} Creatures!", Window.Width / 2 - 150, Window.Height / 2 - 50);
             Text.Draw("You Lose!", Window.Width / 2 - 150, Window.Height / 2 - 150);
         }
+
+        // Press Tab to return to the menu indicator in the top right
+        Text.Size = 20;
+        Text.Draw("Press Tab to Play Again", Window.Width - 300, 20);
+
+        if (Input.IsKeyboardKeyPressed(KeyboardInput.Tab))
+        {
+            activeState = GameState.Menu;
+            Setup();
+            playerView = new Vector2(-mapLength / 2, 0);
+            photographs = new Photograph[24];
+        }
     }
 
     public void DisplayPhotograph(Photograph photograph, Vector2 photoPosition, float scale = 1)
@@ -316,6 +338,11 @@ public class Game
         Draw.FillColor = new Color(0, 0, 0, 0);
         Draw.LineSize = 5;
         Draw.Rectangle(viewfinder.position, viewfinder.size);
+        // Draw remaining photos above the viewfinder
+        Vector2 textOffset = new Vector2(35, -25);
+        Text.Color = Color.White;
+        Text.Size = 20;
+        Text.Draw($"Photos Remaining: {photosRemaining}", viewfinder.position + textOffset);
     }
 
     public Vector2 RotateView(Vector2 mousePosition, bool isPlayer = true)
