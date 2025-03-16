@@ -386,9 +386,10 @@ public class Game
         }
 
         Graphics.Scale = bird.scale;
-        if (bird.position.X < 0)
+        if (bird.position.X < -1000)
         {
-            bird.position.X = mapLength;
+            // Reset the bird to the right side of the map
+            bird.position.X = mapLength + 1000;
         }
 
         bird.position += new Vector2(-birdSpeed, 0);
