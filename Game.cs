@@ -29,7 +29,6 @@ public class Game
     Vector2 photoFrameSize = new Vector2(275, 220);
     Vector2 galleryOffset = new Vector2(50, 100);
     Vector2 galleryTextOffset = new Vector2(390, 0);
-    bool renaming = false; // Flag to indicate if the player is renaming a photo
 
     // Game Objects
     Rectangle viewfinder = new Rectangle(new Vector2(0, 0), new Vector2(250, 200));
@@ -179,12 +178,11 @@ public class Game
             Text.Size = 30;
             if (photographs[i] != null)
             {
-                // Try to rename the photograph if the player clickers near the title
+                // Try to rename the photograph if the player clicks near the title. Stop renaming if the player clicks away, presses Enter or presses Tab
                 bool clickedNearTitle = Vector2.Distance(Input.GetMousePosition(), photoPosition + galleryOffset + galleryTextOffset) < 150;
                 if (Input.IsMouseButtonPressed(MouseInput.Left) && clickedNearTitle)
                 {
                     photographs[i].rename = true;
-                    renaming = true;
                     if (photographs[i].title == "Untitled")
                     {
                         photographs[i].title = "";
@@ -196,7 +194,6 @@ public class Game
                     if (Input.IsKeyboardKeyPressed(KeyboardInput.Enter) || Input.IsKeyboardKeyPressed(KeyboardInput.Tab) || (Input.IsMouseButtonDown(MouseInput.Left) && !clickedNearTitle))
                     {
                         photographs[i].rename = false;
-                        renaming = false;
                         Text.Color = Color.Black;
                         if (photographs[i].title == "")
                         {
@@ -310,7 +307,6 @@ public class Game
 
             Graphics.Scale = creature.scale * scale;
             Vector2 textureSubsetOrigin = (overlap.position - creature.position) / creature.scale;
-            Console.WriteLine(textureSubsetOrigin.ToString());
             Graphics.DrawSubset(creature.viewedTexture, drawPosition, textureSubsetOrigin, overlap.size / creature.scale);
         }
 
