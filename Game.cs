@@ -91,7 +91,6 @@ public class Game
                 Menu();
                 break;
             case GameState.End:
-                Gallery();
                 End();
                 break;
         }
@@ -149,6 +148,7 @@ public class Game
             if (photograph is null) { photosRemaining++; } 
         }
 
+        // Continue the game if the player has photos left
         if (photosRemaining > 0)
         {
             DrawEnvironment(mousePosition, playerView);
@@ -157,6 +157,8 @@ public class Game
         }
         else
         {
+            // If all photos are taken, end the game and reset the view in the gallery
+            playerOffset = new Vector2(0, 0);
             activeState = GameState.End;
         }
         playerView += RotateView(mousePosition);
@@ -231,6 +233,7 @@ public class Game
 
     public void End()
     {
+        // Check which creatures were caught
         Creature[] creaturesCaught = new Creature[Creature.AllCreatures.Length];
         foreach (Photograph photograph in photographs)
         {
@@ -245,6 +248,7 @@ public class Game
             }
         }
 
+        // Check how many creature species were missed
         int creaturesMissed = 0;
         foreach (Creature creature in creaturesCaught)
         {
@@ -254,14 +258,18 @@ public class Game
             }
         }
 
+        // Display the win or lose screen
         if (creaturesMissed <= 0)
         {
-            // Do not ClearBackground here, the game will show the winning gallery
+            // Display the gallery
+            Gallery();
+
             // Draw a rectanglar frame for the win text
             Draw.FillColor = Color.Yellow;
             Draw.LineSize = 0;
             Draw.Rectangle(Window.Width/2 - 75, 75, 200, 70);
 ;           Text.Draw("You Win!", Window.Width/2 - 50, 100);
+
         }
         else
         {
