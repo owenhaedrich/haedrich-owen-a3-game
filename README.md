@@ -10,3 +10,7 @@ Explore the jungle and take photographs of your favourite creatures!
 - Press Tab to switch between the Playing view and the Gallery. You can rename photos by clicking on their title.
 
 - Adjust your view by moving the mouse to the edge of the screen.
+
+- The game ends when you have used all of your photos.
+
+- You can win by taking at least one photo of each unique creature.
