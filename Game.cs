@@ -19,8 +19,8 @@ public class Game
     GameState activeState = GameState.Menu;
 
     // Player View Control
-    float rotationSpeed = 3.7f;
-    float liftSpeed = 3.5f;
+    float rotationSpeed = 3.7f; // Player left and right rotation speed
+    float liftSpeed = 3.5f; // Player up and down look rotation speed
     int photosRemaining = 12;
 
     // Gallery View Control
@@ -29,24 +29,27 @@ public class Game
     Vector2 photoFrameSize = new Vector2(275, 220);
     Vector2 galleryOffset = new Vector2(50, 100);
     Vector2 galleryTextOffset = new Vector2(390, 0);
-    bool renaming = false;
-    
+    bool renaming = false; // Flag to indicate if the player is renaming a photo
+
     // Game Objects
     Rectangle viewfinder = new Rectangle(new Vector2(0, 0), new Vector2(250, 200));
-    Creature bird = Creature.bird(new Vector2(0, -400));
+    Creature bird = Creature.bird(new Vector2(0, -400)); // The bird is a special creature that flies across the screen
     float birdSpeed = 1.3f;
     Creature[] spawnedCreatures = new Creature[11];
     Photograph[] photographs = new Photograph[12];
     const float mapLength = 3000;
     const float lookHeight = 1000;
     Vector2 playerView = new Vector2(-mapLength / 2, 0);
-    Texture2D background = Graphics.LoadTexture("../../../forest.png");
+    Texture2D background = Graphics.LoadTexture("../../../../assets/forest.png");
     Vector2 backGroundOffset = new Vector2(-1500, -500);
 
     public void Setup()
     {
         Window.SetSize(800, 600);
+
+        // Set default photo count
         photosRemaining = photographs.Length;
+
         // Spawn creatures
         for (int i = 0; i < spawnedCreatures.Length; i++)
         {
@@ -76,6 +79,7 @@ public class Game
 
     public void Update()
     {
+        // One active state is updated each frame
         switch (activeState)
         {
             case GameState.Playing:
@@ -93,6 +97,7 @@ public class Game
                 break;
         }
 
+        // Check for state changes based on player input
         if (Input.IsMouseButtonDown(MouseInput.Left) && activeState == GameState.Menu)
         {
             activeState = GameState.Playing;
@@ -123,6 +128,7 @@ public class Game
         }
     }
 
+    // Draw the menu screen
     public void Menu()
     {
         Window.ClearBackground(Color.OffWhite);
@@ -133,6 +139,7 @@ public class Game
         Text.Draw("Click to start", Window.Width / 2 - 150, Window.Height / 2 + 100);
     }
 
+    // Draw the photographer view
     public void Play()
     {
         Window.ClearBackground(Color.OffWhite);
@@ -160,6 +167,7 @@ public class Game
         }
     }
 
+    // Draw the gallery view
     public void Gallery()
     {
         Window.ClearBackground(Color.OffWhite);
@@ -171,8 +179,8 @@ public class Game
             Text.Size = 30;
             if (photographs[i] != null)
             {
+                // Try to rename the photograph if the player clickers near the title
                 bool clickedNearTitle = Vector2.Distance(Input.GetMousePosition(), photoPosition + galleryOffset + galleryTextOffset) < 150;
-                // Try to rename the photograph
                 if (Input.IsMouseButtonPressed(MouseInput.Left) && clickedNearTitle)
                 {
                     photographs[i].rename = true;
@@ -281,24 +289,28 @@ public class Game
     public void DisplayPhotograph(Photograph photograph, Vector2 photoPosition, float scale = 1)
     {
         Graphics.Scale = 1 * scale; ;
+
+        // Draw the background. Find the subset of the background that the viewfinder was looking at
         Vector2 backgroundSubsetOrigin = photograph.viewfinderPosition - backGroundOffset;
         Graphics.DrawSubset(background, photoPosition, backgroundSubsetOrigin, photoFrameSize);
 
+        // Draw the creatures in the photograph. Find the subset of the creature that overlaps with the viewfinder
         foreach (Creature creature in photograph.capturedCreatures)
         {
             if (creature == null)
                 continue;
 
-            Rectangle overlap = GetOverlap(
+            Rectangle overlap = GetRectangleOverlap(
                 new Rectangle(creature.position, Creature.MaxSize * creature.scale),
                 new Rectangle(photograph.viewfinderPosition, photoFrameSize)
             );
 
-            Vector2 viewfinderToOverlap = overlap.position - photograph.viewfinderPosition;
-            Vector2 drawPosition = photoPosition + viewfinderToOverlap * scale;
+            Vector2 overlapLocalPosition = (overlap.position - photograph.viewfinderPosition) * scale;
+            Vector2 drawPosition = photoPosition + overlapLocalPosition;
 
             Graphics.Scale = creature.scale * scale;
             Vector2 textureSubsetOrigin = (overlap.position - creature.position) / creature.scale;
+            Console.WriteLine(textureSubsetOrigin.ToString());
             Graphics.DrawSubset(creature.viewedTexture, drawPosition, textureSubsetOrigin, overlap.size / creature.scale);
         }
 
@@ -408,7 +420,7 @@ public class Game
                 new Rectangle(creature.position + playerView, creatureSize),
                 new Rectangle(viewfinder.position, viewfinder.size)))
             {
-                Rectangle overlap = GetOverlap(
+                Rectangle overlap = GetRectangleOverlap(
                     new Rectangle(creature.position + playerView, creatureSize),
                     new Rectangle(viewfinder.position, viewfinder.size)
                 );
@@ -424,7 +436,7 @@ public class Game
         Rectangle birdScreenRect = new Rectangle(bird.position + playerView, birdSize);
         if (DoRectanglesOverlap(birdScreenRect, new Rectangle(viewfinder.position, viewfinder.size)))
         {
-            Rectangle overlap = GetOverlap(
+            Rectangle overlap = GetRectangleOverlap(
                 birdScreenRect,
                 new Rectangle(viewfinder.position, viewfinder.size)
             );
@@ -498,7 +510,7 @@ public class Game
         return true;
     }
 
-    public Rectangle GetOverlap(Rectangle rect1, Rectangle rect2)
+    public Rectangle GetRectangleOverlap(Rectangle rect1, Rectangle rect2)
     {
         Vector2 P1 = rect1.position;
         Vector2 S1 = rect1.size;
