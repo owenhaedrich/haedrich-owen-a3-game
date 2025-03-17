@@ -40,7 +40,7 @@ public class Game
     const float mapLength = 3000;
     const float lookHeight = 1000;
     Vector2 playerView = new Vector2(-mapLength / 2, 0);
-    Texture2D background = Graphics.LoadTexture("../../../../assets/forest.png");
+    Texture2D background = Graphics.LoadTexture("../../../assets/forest.png");
     Vector2 backGroundOffset = new Vector2(-1500, -500);
 
     public void Setup()

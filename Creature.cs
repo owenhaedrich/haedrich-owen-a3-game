@@ -21,16 +21,16 @@ namespace haedrich_owen_a3_game
             bird(Vector2.Zero)
         };
 
-        static Texture2D aMonViewed = Graphics.LoadTexture("../../../../assets/aMon.png");
-        static Texture2D aMonShadow = Graphics.LoadTexture("../../../../assets/aMonShadow.png");
-        static Texture2D bMonViewed = Graphics.LoadTexture("../../../../assets/bMon.png");
-        static Texture2D bMonShadow = Graphics.LoadTexture("../../../../assets/bMonShadow.png");
-        static Texture2D cMonViewed = Graphics.LoadTexture("../../../../assets/cMon.png");
-        static Texture2D cMonShadow = Graphics.LoadTexture("../../../../assets/cMonShadow.png");
-        static Texture2D dMonViewed = Graphics.LoadTexture("../../../../assets/dMon.png");
-        static Texture2D dMonShadow = Graphics.LoadTexture("../../../../assets/dMonShadow.png");
-        static Texture2D birdViewed = Graphics.LoadTexture("../../../../assets/bird.png");
-        static Texture2D birdShadow = Graphics.LoadTexture("../../../../assets/birdShadow.png");
+        static Texture2D aMonViewed = Graphics.LoadTexture("../../../assets/aMon.png");
+        static Texture2D aMonShadow = Graphics.LoadTexture("../../../assets/aMonShadow.png");
+        static Texture2D bMonViewed = Graphics.LoadTexture("../../../assets/bMon.png");
+        static Texture2D bMonShadow = Graphics.LoadTexture("../../../assets/bMonShadow.png");
+        static Texture2D cMonViewed = Graphics.LoadTexture("../../../assets/cMon.png");
+        static Texture2D cMonShadow = Graphics.LoadTexture("../../../assets/cMonShadow.png");
+        static Texture2D dMonViewed = Graphics.LoadTexture("../../../assets/dMon.png");
+        static Texture2D dMonShadow = Graphics.LoadTexture("../../../assets/dMonShadow.png");
+        static Texture2D birdViewed = Graphics.LoadTexture("../../../assets/bird.png");
+        static Texture2D birdShadow = Graphics.LoadTexture("../../../assets/birdShadow.png");
 
         Creature(Vector2 spawnPosition)
         {
